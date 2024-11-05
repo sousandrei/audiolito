@@ -95,8 +95,8 @@ func handleAnalyze(c *cli.Context) error {
 		}
 
 		fmt.Printf("       file: %s\n", inputFilePath)
-		fmt.Printf("mean_volume: -%s\n", strconv.FormatFloat(stats.Mean_volume, 'f', -1, 64))
-		fmt.Printf(" max_volume: -%s\n\n", strconv.FormatFloat(stats.Max_volume, 'f', -1, 64))
+		fmt.Printf("mean_volume: %s\n", strconv.FormatFloat(stats.Mean_volume, 'f', -1, 64))
+		fmt.Printf(" max_volume: %s\n\n", strconv.FormatFloat(stats.Max_volume, 'f', -1, 64))
 	}
 	return nil
 }

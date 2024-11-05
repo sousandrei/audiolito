@@ -13,7 +13,7 @@ type volumeStats struct {
 	Max_volume  float64
 }
 
-var dbfloatRegex = regexp.MustCompile(`: -([0-9]{1,2}.[0-9]{1,2})`)
+var dbfloatRegex = regexp.MustCompile(`: (-?[0-9]{1,2}.[0-9]{1,2}) dB`)
 
 // ffmpeg -hide_banner -i $OUTPUT_NORMALIZED -filter:a volumedetect -f matroska /dev/null
 func Analyze(filePath string) (*volumeStats, error) {
@@ -33,13 +33,20 @@ func Analyze(filePath string) (*volumeStats, error) {
 
 	matches := dbfloatRegex.FindAllStringSubmatch(string(output), 2)
 
+	if len(matches) != 2 {
+		fmt.Println(string(output))
+		return nil, fmt.Errorf("failed to parse volume stats")
+	}
+
 	meanVolume, err := strconv.ParseFloat(matches[0][1], 64)
 	if err != nil {
+		fmt.Println(string(output))
 		return nil, fmt.Errorf("failed to parse mean volume: %w", err)
 	}
 
 	maxVolume, err := strconv.ParseFloat(matches[1][1], 64)
 	if err != nil {
+		fmt.Println(string(output))
 		return nil, fmt.Errorf("failed to parse max volume: %w", err)
 	}
 
