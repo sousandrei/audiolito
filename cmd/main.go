@@ -58,12 +58,7 @@ func handleNormalize(c *cli.Context) error {
 			return err
 		}
 
-		max_volume, err := strconv.ParseFloat(stats.Max_volume[:len(stats.Max_volume)-3], 64)
-		if err != nil {
-			return err
-		}
-
-		err = normalizer.Peaknorm(inputFilePath, outputFilePathPeaknorm, max_volume)
+		err = normalizer.Peaknorm(inputFilePath, outputFilePathPeaknorm, stats.Max_volume)
 		if err != nil {
 			return err
 		}
@@ -94,8 +89,8 @@ func handleAnalyze(c *cli.Context) error {
 		}
 
 		fmt.Printf("       file: %s\n", inputFilePath)
-		fmt.Printf("mean_volume: %s\n", stats.Mean_volume)
-		fmt.Printf(" max_volume: %s\n\n", stats.Max_volume)
+		fmt.Printf("mean_volume: -%s\n", strconv.FormatFloat(stats.Mean_volume, 'f', -1, 64))
+		fmt.Printf(" max_volume: -%s\n\n", strconv.FormatFloat(stats.Max_volume, 'f', -1, 64))
 	}
 	return nil
 }

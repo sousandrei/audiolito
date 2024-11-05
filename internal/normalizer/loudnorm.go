@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"normalizer/internal/ffmpeg"
 	"os"
-	"strings"
+	"regexp"
 )
 
 type loudnormStats struct {
@@ -50,6 +50,7 @@ func Loudnorm(filePath string, outputFilePath string) (*loudnormStats, error) {
 
 	stats, err := parseLoudnormStats(string(output))
 	if err != nil {
+		fmt.Println(string(output))
 		return nil, fmt.Errorf("failed to parse loudnorm stats: %w", err)
 	}
 
@@ -75,17 +76,20 @@ func Loudnorm(filePath string, outputFilePath string) (*loudnormStats, error) {
 
 	outputStats, err := parseLoudnormStats(string(output))
 	if err != nil {
+		fmt.Println(string(output))
 		return nil, fmt.Errorf("failed to parse loudnorm stats: %w", err)
 	}
 
 	return outputStats, nil
 }
 
+var jsonRegex = regexp.MustCompile(`{([\w\n\s\:,\-."]*)}`)
+
 func parseLoudnormStats(output string) (*loudnormStats, error) {
-	jsonPart := strings.Split(output, "{")[1]
+	jsonPart := jsonRegex.Find([]byte(output))
 
 	var stats loudnormStats
-	err := json.Unmarshal([]byte("{"+jsonPart), &stats)
+	err := json.Unmarshal(jsonPart, &stats)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal json: %w", err)
 	}

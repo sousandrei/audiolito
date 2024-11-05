@@ -5,15 +5,15 @@ import (
 	"normalizer/internal/ffmpeg"
 	"os"
 	"regexp"
+	"strconv"
 )
 
 type volumeStats struct {
-	Mean_volume string
-	Max_volume  string
+	Mean_volume float64
+	Max_volume  float64
 }
 
-var meanVolumeRegex = regexp.MustCompile(`mean_volume: (.+)`)
-var maxVolumeRegex = regexp.MustCompile(`max_volume: (.+)`)
+var dbfloatRegex = regexp.MustCompile(`: -([0-9]{1,2}.[0-9]{1,2})`)
 
 // ffmpeg -hide_banner -i $OUTPUT_NORMALIZED -filter:a volumedetect -f matroska /dev/null
 func Analyze(filePath string) (*volumeStats, error) {
@@ -31,8 +31,17 @@ func Analyze(filePath string) (*volumeStats, error) {
 		return nil, fmt.Errorf("failed to run ffmpeg: %w", err)
 	}
 
-	meanVolume := meanVolumeRegex.FindStringSubmatch(string(output))[1]
-	maxVolume := maxVolumeRegex.FindStringSubmatch(string(output))[1]
+	matches := dbfloatRegex.FindAllStringSubmatch(string(output), 2)
+
+	meanVolume, err := strconv.ParseFloat(matches[0][1], 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse mean volume: %w", err)
+	}
+
+	maxVolume, err := strconv.ParseFloat(matches[1][1], 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse max volume: %w", err)
+	}
 
 	return &volumeStats{
 		Mean_volume: meanVolume,
