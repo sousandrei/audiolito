@@ -50,9 +50,10 @@ func handleNormalize(c *cli.Context) error {
 		fmt.Printf("normalizing %s\n", inputFilePath)
 
 		fileName := strings.TrimSuffix(inputFilePath, filepath.Ext(inputFilePath))
-		outputFilePathLoudnorm := fileName + ".loudnorm.mkv"
-		outputFilePathPeaknorm := fileName + ".peakloud.mkv"
-		outputFilePathNormalized := fileName + ".normalized.mkv"
+		extension := filepath.Ext(inputFilePath)
+		outputFilePathLoudnorm := fileName + ".loudnorm." + extension
+		outputFilePathPeaknorm := fileName + ".peakloud." + extension
+		outputFilePathNormalized := fileName + ".normalized." + extension
 
 		_, err := normalizer.Loudnorm(inputFilePath, outputFilePathLoudnorm)
 		if err != nil {

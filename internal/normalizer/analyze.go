@@ -15,14 +15,14 @@ type volumeStats struct {
 
 var dbfloatRegex = regexp.MustCompile(`: (-?[0-9]{1,2}.[0-9]{1,2}) dB`)
 
-// ffmpeg -hide_banner -i $OUTPUT_NORMALIZED -filter:a volumedetect -f matroska /dev/null
+// ffmpeg -hide_banner -i $OUTPUT_NORMALIZED -filter:a volumedetect -f null /dev/null
 func Analyze(filePath string) (*volumeStats, error) {
 	output, err := ffmpeg.Run(
 		ffmpeg.WithInput(filePath),
 		ffmpeg.WithVideoCodec("copy"),
 		ffmpeg.WithAudioFilter("volumedetect"),
 		ffmpeg.WithOverwrite(),
-		ffmpeg.WithFormat("matroska"),
+		ffmpeg.WithFormat("null"),
 		ffmpeg.WithOutput(os.DevNull),
 	)
 

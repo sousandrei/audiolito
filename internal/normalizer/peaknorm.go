@@ -14,7 +14,6 @@ func Peaknorm(filePath string, outputFilePath string, targetLevel float64) error
 		ffmpeg.WithVideoCodec("copy"),
 		ffmpeg.WithAudioFilter(audioFilter),
 		ffmpeg.WithOverwrite(),
-		ffmpeg.WithFormat("matroska"),
 		ffmpeg.WithOutput(outputFilePath),
 	)
 
