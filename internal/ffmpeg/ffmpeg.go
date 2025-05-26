@@ -5,17 +5,15 @@ import (
 	"os/exec"
 )
 
-var defaultArgs = []string{
-	"-hide_banner",
-}
-
 type ffmpeg struct {
 	args []string
 }
 
 func Run(options ...func(*ffmpeg)) ([]byte, error) {
 	d := &ffmpeg{
-		args: defaultArgs,
+		args: []string{
+			"-hide_banner",
+		},
 	}
 
 	for _, option := range options {

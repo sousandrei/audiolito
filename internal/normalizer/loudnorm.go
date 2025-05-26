@@ -31,11 +31,14 @@ type loudnormStats struct {
 //	ffmpeg -hide_banner -i $INPUT -c:v copy -c:a copy -b:a 256k \
 //	    -filter:a loudnorm=linear=true:measured_I=$INPUT_I:measured_LRA=$INPUT_LRA:measured_tp=$INPUT_TP:measured_thresh=$INPUT_THRESH \
 //	    $OUTPUT_NORMALIZED
-func Loudnorm(filePath string, outputFilePath string) (*loudnormStats, error) {
+func Loudnorm(
+	filePath string,
+	outputFilePath string,
+) (*loudnormStats, error) {
 	output, err := ffmpeg.Run(
 		ffmpeg.WithInput(filePath),
 		ffmpeg.WithVideoCodec("copy"),
-		ffmpeg.WithAudioFilter("loudnorm=print_format=json"),
+		ffmpeg.WithAudioFilter("loudnorm=print_format=json:I=-23:TP=-1:LRA=7"),
 		ffmpeg.WithOverwrite(),
 		ffmpeg.WithFormat("null"),
 		ffmpeg.WithOutput(os.DevNull),
@@ -53,7 +56,7 @@ func Loudnorm(filePath string, outputFilePath string) (*loudnormStats, error) {
 	}
 
 	audioFilter := fmt.Sprintf(
-		"loudnorm=linear=true:measured_I=%v:measured_LRA=%v:measured_tp=%v:measured_thresh=%v:print_format=json",
+		"loudnorm=I=-23:TP=-1:LRA=7:measured_I=%v:measured_LRA=%v:measured_TP=%v:measured_thresh=%v:linear=true:print_format=json",
 		stats.Input_i, stats.Input_lra, stats.Input_tp, stats.Input_thresh)
 
 	output, err = ffmpeg.Run(

@@ -17,6 +17,7 @@ func main() {
 	app := &cli.App{
 		Name:  "audiolito",
 		Usage: "tools for audio manipulation",
+
 		Commands: []*cli.Command{
 			{
 				Name:      "normalize",
@@ -51,31 +52,9 @@ func handleNormalize(c *cli.Context) error {
 
 		fileName := strings.TrimSuffix(inputFilePath, filepath.Ext(inputFilePath))
 		extension := filepath.Ext(inputFilePath)
-		outputFilePathLoudnorm := fileName + ".loudnorm." + extension
-		outputFilePathPeaknorm := fileName + ".peakloud." + extension
-		outputFilePathNormalized := fileName + ".normalized." + extension
+		outputFilePathNormalized := fileName + ".normalized" + extension
 
-		_, err := normalizer.Loudnorm(inputFilePath, outputFilePathLoudnorm)
-		if err != nil {
-			return err
-		}
-
-		stats, err := normalizer.Analyze(inputFilePath)
-		if err != nil {
-			return err
-		}
-
-		err = normalizer.Peaknorm(inputFilePath, outputFilePathPeaknorm, stats.Max_volume)
-		if err != nil {
-			return err
-		}
-
-		err = os.Remove(outputFilePathLoudnorm)
-		if err != nil {
-			return err
-		}
-
-		err = os.Rename(outputFilePathPeaknorm, outputFilePathNormalized)
+		_, err := normalizer.Loudnorm(inputFilePath, outputFilePathNormalized)
 		if err != nil {
 			return err
 		}
