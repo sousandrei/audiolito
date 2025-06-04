@@ -1,12 +1,14 @@
 package normalizer
 
 import (
+	"context"
 	"fmt"
 	"normalizer/internal/ffmpeg"
 )
 
 // ffmpeg -hide_banner -i $OUTPUT_NORMALIZED -c:v copy -af "volume=$MAX_VOLUME" $OUTPUT_NORMALIZED_LOUD
 func Peaknorm(
+	ctx context.Context,
 	filePath string,
 	outputFilePath string,
 	targetLevel float64,
@@ -14,6 +16,7 @@ func Peaknorm(
 	audioFilter := fmt.Sprintf("volume=%f", targetLevel)
 
 	output, err := ffmpeg.Run(
+		ctx,
 		ffmpeg.WithInput(filePath),
 		ffmpeg.WithVideoCodec("copy"),
 		ffmpeg.WithAudioFilter(audioFilter),

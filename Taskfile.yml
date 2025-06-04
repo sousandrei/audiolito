@@ -3,8 +3,8 @@ version: '3'
 tasks:
   build:
     cmds:
-      - go build -o ./build/audiolito ./cmd/main.go
-      - GOOS=windows GOARCH=amd64 go build -o ./build/audiolito.exe ./cmd/main.go
+      - go build -o ./build/audiolito ./cmd/*.go
+      - GOOS=windows GOARCH=amd64 go build -o ./build/audiolito.exe ./cmd/*.go
     sources:
       - cmd/*.go
       - internal/**/*.go

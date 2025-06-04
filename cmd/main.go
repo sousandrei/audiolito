@@ -7,7 +7,6 @@ import (
 	"normalizer/internal/normalizer"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -17,7 +16,18 @@ func main() {
 	app := &cli.App{
 		Name:  "audiolito",
 		Usage: "tools for audio manipulation",
-
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "no-tui",
+				Usage: "disables the TUI",
+				Value: false,
+			},
+			&cli.BoolFlag{
+				Name:  "debug",
+				Usage: "pipes ffmpeg output to stdout",
+				Value: false,
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:      "normalize",
@@ -43,6 +53,8 @@ func main() {
 }
 
 func handleNormalize(c *cli.Context) error {
+	ctx := c.Context
+
 	for _, inputFilePath := range c.Args().Slice() {
 		if _, err := os.Stat(inputFilePath); os.IsNotExist(err) {
 			return fmt.Errorf("file %s does not exist", inputFilePath)
@@ -54,34 +66,22 @@ func handleNormalize(c *cli.Context) error {
 		extension := filepath.Ext(inputFilePath)
 		outputFilePathNormalized := fileName + ".normalized" + extension
 
-		_, err := normalizer.Loudnorm(inputFilePath, outputFilePathNormalized)
+		_, err := normalizer.Loudnorm(
+			ctx,
+			inputFilePath,
+			outputFilePathNormalized,
+		)
 		if err != nil {
 			return err
 		}
 	}
 
-	return nil
-}
-
-func handleAnalyze(c *cli.Context) error {
-	for _, inputFilePath := range c.Args().Slice() {
-		if _, err := os.Stat(inputFilePath); os.IsNotExist(err) {
-			return fmt.Errorf("file %s does not exist", inputFilePath)
-		}
-
-		stats, err := normalizer.Analyze(inputFilePath)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("       file: %s\n", inputFilePath)
-		fmt.Printf("mean_volume: %s\n", strconv.FormatFloat(stats.Mean_volume, 'f', -1, 64))
-		fmt.Printf(" max_volume: %s\n\n", strconv.FormatFloat(stats.Max_volume, 'f', -1, 64))
-	}
 	return nil
 }
 
 func handleWav(c *cli.Context) error {
+	ctx := c.Context
+
 	for _, inputFilePath := range c.Args().Slice() {
 		if _, err := os.Stat(inputFilePath); os.IsNotExist(err) {
 			return fmt.Errorf("file %s does not exist", inputFilePath)
@@ -93,6 +93,7 @@ func handleWav(c *cli.Context) error {
 		outputFilePath := fileName + ".wav"
 
 		_, err := ffmpeg.Run(
+			ctx,
 			ffmpeg.WithInput(inputFilePath),
 			ffmpeg.WithAudioCodec("pcm_s16le"),
 			ffmpeg.WithOverwrite(),

@@ -1,6 +1,7 @@
 package normalizer
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"normalizer/internal/ffmpeg"
@@ -32,10 +33,12 @@ type loudnormStats struct {
 //	    -filter:a loudnorm=linear=true:measured_I=$INPUT_I:measured_LRA=$INPUT_LRA:measured_tp=$INPUT_TP:measured_thresh=$INPUT_THRESH \
 //	    $OUTPUT_NORMALIZED
 func Loudnorm(
+	ctx context.Context,
 	filePath string,
 	outputFilePath string,
 ) (*loudnormStats, error) {
 	output, err := ffmpeg.Run(
+		ctx,
 		ffmpeg.WithInput(filePath),
 		ffmpeg.WithVideoCodec("copy"),
 		ffmpeg.WithAudioFilter("loudnorm=print_format=json:I=-23:TP=-1:LRA=7"),
@@ -60,6 +63,7 @@ func Loudnorm(
 		stats.Input_i, stats.Input_lra, stats.Input_tp, stats.Input_thresh)
 
 	output, err = ffmpeg.Run(
+		ctx,
 		ffmpeg.WithInput(filePath),
 		ffmpeg.WithVideoCodec("copy"),
 		ffmpeg.WithAudioFilter(audioFilter),
