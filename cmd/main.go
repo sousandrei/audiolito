@@ -48,15 +48,34 @@ func handleNormalize(c *cli.Context) error {
 			return fmt.Errorf("file %s does not exist", inputFilePath)
 		}
 
-		fmt.Printf("normalizing %s\n", inputFilePath)
+		fmt.Printf("loud normalizing %s\n", inputFilePath)
 
 		fileName := strings.TrimSuffix(inputFilePath, filepath.Ext(inputFilePath))
 		extension := filepath.Ext(inputFilePath)
+		outputFilePathLoudNormalized := fileName + ".loud_normalized" + extension
 		outputFilePathNormalized := fileName + ".normalized" + extension
 
-		_, err := normalizer.Loudnorm(inputFilePath, outputFilePathNormalized)
+		stats, err := normalizer.Loudnorm(inputFilePath, outputFilePathLoudNormalized)
 		if err != nil {
 			return err
+		}
+
+		fmt.Printf("peak normalizing %s\n", outputFilePathLoudNormalized)
+
+		inputI, err := strconv.ParseFloat(stats.Input_i, 64)
+		if err != nil {
+			return fmt.Errorf("failed to parse input_i: %w", err)
+		}
+
+		targetLoudness := inputI * -1
+
+		err = normalizer.Peaknorm(outputFilePathLoudNormalized, outputFilePathNormalized, targetLoudness)
+		if err != nil {
+			return fmt.Errorf("failed to apply peak normalization: %w", err)
+		}
+
+		if err := os.Remove(outputFilePathLoudNormalized); err != nil {
+			return fmt.Errorf("failed to remove temporary file %s: %w", outputFilePathLoudNormalized, err)
 		}
 	}
 
